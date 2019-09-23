@@ -1,4 +1,4 @@
-# MATLAB Fall 2014 – Research Plan (Template)
+# Agent-Based Modeling and Social System Simulation 2019 (Template)
 (text between brackets to be removed)
 
 > * Group Name: (be creative!)
