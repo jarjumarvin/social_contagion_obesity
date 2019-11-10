@@ -25,13 +25,31 @@ class Agent:
         self.age = age
         self.sex = sex
         self.obese = obese
+        self.next_state = obese
     
     def __str__(self):
-        return '%d\t%d\t%d\t%s' % (self.ID, self.age, self.sex, self.obese)
+        return '%d\t%d\t%s\t%s' % (self.ID, self.age, self.sex, self.obese)
 
-    def interact(self, G):
+    def interact(self, G, rate_transmission, rate_recovery, rate_spontaneous):
         # loop through neighbours, set own obesity probabilty
-        print()
+        deg = G.degree(self.ID)
+        eps = np.random.rand()
+        if(self.obese):
+            if(eps < rate_recovery):
+                self.next_state = False
+        else:
+            p = rate_spontaneous
+
+            for agent in G.neighbors(self.ID):
+                neighbor = G.nodes[agent]['data']
+                if neighbor.obese:
+                    p += (rate_transmission / deg)
+
+            if(eps < p):
+                self.next_state = True
+    
+    def update(self):
+        self.obese = self.next_state
 """
     Returns a uniformly distributed age within a given age group
 """
@@ -66,8 +84,11 @@ def createSwissAgents(n):
         [65-74]     17.7%       14.1%
         [75+]       11.7%       12.5%
     """
-    obesityRateMale = { '15-24': 0.051, '25-34': 0.092, '35-44': 0.11, '45-54': 0.144, '55-64': 0.174, '65-74': 0.177, '75+': 0.117 }
-    obesityRateFemale = { '15-24': 0.03, '25-34': 0.057, '35-44': 0.091, '45-54': 0.121, '55-64': 0.153, '65-74': 0.141, '75+': 0.125 }
+    # obesityRateMale = { '15-24': 0.051, '25-34': 0.092, '35-44': 0.11, '45-54': 0.144, '55-64': 0.174, '65-74': 0.177, '75+': 0.117 }
+    # obesityRateFemale = { '15-24': 0.03, '25-34': 0.057, '35-44': 0.091, '45-54': 0.121, '55-64': 0.153, '65-74': 0.141, '75+': 0.125 }
+
+    obesityRateMale = { '15-24': 0.011, '25-34': 0.038, '35-44': 0.053, '45-54': 0.088, '55-64': 0.107, '65-74': 0.094, '75+': 0.064 }
+    obesityRateFemale = { '15-24': 0.07, '25-34': 0.024, '35-44': 0.043, '45-54': 0.054, '55-64': 0.087, '65-74': 0.083, '75+': 0.071 }
 
     # Create discrete age probability distribution
     pk = (14.67, 47., 16.39, 21.94)
@@ -88,6 +109,7 @@ def createSwissAgents(n):
         rates = obesityRateFemale if sex == 'f' else obesityRateMale
         eps = np.random.rand()
         state = False
+
         if age < 25 and eps < rates['15-24']: state = True
         elif age in range(25, 35) and eps < rates['25-34']: state = True
         elif age in range(35, 45) and eps < rates['35-44']: state = True
@@ -104,20 +126,27 @@ def createSwissAgents(n):
 """
 def exportNetwork(G, name):
     G_ = deepcopy(G)
-    agents = nx.get_node_attributes(G_, 'agent')
+    agents = nx.get_node_attributes(G_, 'data')
 
     for agent in agents:
         agents[agent] = 1 if agents[agent].obese else 0
     
-    nx.set_node_attributes(G_, agents, 'agent')
+    nx.set_node_attributes(G_, agents, 'data')
     nx.write_gexf(G_, os.path.join(dirname, "graph/" ,name + ".gexf"))
 
+def obesityRateNetwork(G):
+    n = len(G.nodes)
+    count = 0
+    for agent in G.nodes:
+        if G.nodes[agent]['data'].obese:
+            count += 1
+    return count / n
 """
     Creates a network using the LFR
 """
 def createNetwork(agents):
     aveDeg = 15
-    maxDeg = 35
+    maxDeg = 40
     gamma = 3
     beta = 2
     mu = 0.25
@@ -125,7 +154,7 @@ def createNetwork(agents):
     G = nx.Graph()
 
     for agent in agents:
-        G.add_node(agent.ID, agent=agent)
+        G.add_node(agent.ID, data=agent)
     
     G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
     G.add_edges_from(G_.edges)
@@ -133,11 +162,27 @@ def createNetwork(agents):
     G.remove_edges_from(nx.selfloop_edges(G))
     return G
 
-def main():
-    n = 1000
+def step(G, rate_transmission, rate_recovery, rate_spontaneous):
+    for agent in G.nodes:
+        G.nodes[agent]['data'].interact(G, rate_transmission, rate_recovery, rate_spontaneous)
+
+    for agent in G.nodes:
+        G.nodes[agent]['data'].update()
+
+def simulate(n = 300, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.049, rate_spontaneous=0.01):
     agents = createSwissAgents(n)
     G = createNetwork(agents)
-    exportNetwork(G, 'random')
+
+    exportNetwork(G, "start")
+    print('initial obesity rate: %f' % obesityRateNetwork(G))
+    for i in range(num_timesteps):
+        step(G, rate_transmission, rate_recovery, rate_spontaneous)
+
+    exportNetwork(G, "end")
+    print('obesity rate after %d timesteps (years): %f' % (num_timesteps, obesityRateNetwork(G)))
+
+def main():
+    simulate()
 
 if __name__== "__main__":
     main()
