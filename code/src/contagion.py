@@ -9,7 +9,9 @@ from networkx.algorithms.community import LFR_benchmark_graph
 
 dirname = os.path.dirname(__file__)
 
-""" 
+
+class Agent:
+    """ 
     Class for individual agents in the network
     
     Attributes:
@@ -17,8 +19,7 @@ dirname = os.path.dirname(__file__)
         - age   : age of the agent (from 15 to 99)
         - sex   : 'm' for male, 'f' for female
         - obese : True for obese, False for not obese
-"""
-class Agent:
+    """
     def __init__(self, ID, age, sex, obese):
         self.ID = ID
         self.age = age
@@ -28,6 +29,9 @@ class Agent:
     def __str__(self):
         return '%d\t%d\t%d\t%s' % (self.ID, self.age, self.sex, self.obese)
 
+    def interact(self, G):
+        # loop through neighbours, set own obesity probabilty
+        print()
 """
     Returns a uniformly distributed age within a given age group
 """
@@ -41,27 +45,27 @@ def ageFromGroup(group):
     elif group == 3:
         return np.random.randint(64, 99)
 
-"""
-    Returns a list of n Agent instances whose attributes are distributed according to the Swiss age distribution
-    and the Swiss obesity rates according to age and gender:
-
-    Age Distribution:
-    [15-24] : 14.67%
-    [25-54] : 47.00%
-    [55-65] : 16.39%
-    [65+]   : 21.94%
-    
-    Obesity Rates:
-    Age         Male        Female
-    [15-24]     5.1%        3%
-    [25-34]     9.2%        5.7%
-    [35-44]     11%         9.1%
-    [45-54]     14.4%       12.1%
-    [55-64]     17.4%       15.3%
-    [65-74]     17.7%       14.1%
-    [75+]       11.7%       12.5%
-"""
 def createSwissAgents(n):
+    """
+        Returns a list of n Agent instances whose attributes are distributed according to the Swiss age distribution
+        and the Swiss obesity rates according to age and gender:
+
+        Age Distribution:
+        [15-24] : 14.67%
+        [25-54] : 47.00%
+        [55-65] : 16.39%
+        [65+]   : 21.94%
+        
+        Obesity Rates:
+        Age         Male        Female
+        [15-24]     5.1%        3%
+        [25-34]     9.2%        5.7%
+        [35-44]     11%         9.1%
+        [45-54]     14.4%       12.1%
+        [55-64]     17.4%       15.3%
+        [65-74]     17.7%       14.1%
+        [75+]       11.7%       12.5%
+    """
     obesityRateMale = { '15-24': 0.051, '25-34': 0.092, '35-44': 0.11, '45-54': 0.144, '55-64': 0.174, '65-74': 0.177, '75+': 0.117 }
     obesityRateFemale = { '15-24': 0.03, '25-34': 0.057, '35-44': 0.091, '45-54': 0.121, '55-64': 0.153, '65-74': 0.141, '75+': 0.125 }
 
@@ -108,6 +112,9 @@ def exportNetwork(G, name):
     nx.set_node_attributes(G_, agents, 'agent')
     nx.write_gexf(G_, os.path.join(dirname, "graph/" ,name + ".gexf"))
 
+"""
+    Creates a network using the LFR
+"""
 def createNetwork(agents):
     aveDeg = 15
     maxDeg = 35
@@ -120,7 +127,7 @@ def createNetwork(agents):
     for agent in agents:
         G.add_node(agent.ID, agent=agent)
     
-    G_ = LFR_benchmark_graph(n, gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
+    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
     G.add_edges_from(G_.edges)
 
     G.remove_edges_from(nx.selfloop_edges(G))
