@@ -75,7 +75,7 @@ def createNetwork(n):
     G = LFR_benchmark_graph(n, gamma, beta, mu, average_degree=aveDeg, max_degree=maxDeg)
     G.remove_edges_from(nx.selfloop_edges(G))
     
-    nx.write_edgelist(G, os.path.join(dirname, 'graph.csv'), data=False)
+    nx.write_edgelist(G, os.path.join(dirname, 'graph/random_network.csv'), data=False)
 
 n = 300
 createNetwork(n)
