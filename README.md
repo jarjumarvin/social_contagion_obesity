@@ -1,9 +1,9 @@
 # Agent-Based Modeling and Social System Simulation 2019 (Template)
 (text between brackets to be removed)
 
-> * Group Name: (be creative!)
-> * Group participants names: (alphabetically sorted by last name)
-> * Project Title: (can be changed later)
+> * Group Name: hufflepuff
+> * Group participants names: Chio Ge, Marvin Jarju, Giulia Zheng
+> * Project Title: Social contagion of obesity in social networks
 
 ## General Introduction
 
