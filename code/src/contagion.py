@@ -8,8 +8,6 @@ from copy import deepcopy
 from networkx.algorithms.community import LFR_benchmark_graph
 
 dirname = os.path.dirname(__file__)
-
-
 class Agent:
     """ 
     Class for individual agents in the network
@@ -20,6 +18,7 @@ class Agent:
         - sex   : 'm' for male, 'f' for female
         - obese : True for obese, False for not obese
     """
+
     def __init__(self, ID, age, sex, obese):
         self.ID = ID
         self.age = age
@@ -39,7 +38,6 @@ class Agent:
                 self.next_state = False
         else:
             p = rate_spontaneous
-
             for agent in G.neighbors(self.ID):
                 neighbor = G.nodes[agent]['data']
                 if neighbor.obese:
@@ -121,10 +119,10 @@ def createSwissAgents(n):
         agents.append(Agent(i, age, sex, state))
     return agents
 
-"""
-    Generates a .gexf file. This graph contains all nodes, edges and a special column indicating the state of obesity.
-"""
 def exportNetwork(G, name):
+    """
+        Generates a .gexf file. This graph contains all nodes, edges and a special column indicating the state of obesity.
+    """
     G_ = deepcopy(G)
     agents = nx.get_node_attributes(G_, 'data')
 
@@ -135,54 +133,158 @@ def exportNetwork(G, name):
     nx.write_gexf(G_, os.path.join(dirname, "graph/" ,name + ".gexf"))
 
 def obesityRateNetwork(G):
+    """
+        Returns the obesity rate of a given network. Element of [0, 1]
+    """
     n = len(G.nodes)
     count = 0
     for agent in G.nodes:
         if G.nodes[agent]['data'].obese:
             count += 1
     return count / n
-"""
-    Creates a network using the LFR
-"""
+
+
 def createNetwork(agents):
-    aveDeg = 15
-    maxDeg = 40
-    gamma = 3
-    beta = 2
-    mu = 0.25
+    """
+        Creates a network using the LFR generator
+    """
+    n = len(agents)
+    tau1 = 3
+    tau2 = 1.5
+    mu = 0.1
 
     G = nx.Graph()
 
     for agent in agents:
         G.add_node(agent.ID, data=agent)
     
-    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
+    G_ = LFR_benchmark_graph(n, tau1, tau2, mu, average_degree=5,min_community=20)    
+    
     G.add_edges_from(G_.edges)
 
     G.remove_edges_from(nx.selfloop_edges(G))
     return G
 
-def step(G, rate_transmission, rate_recovery, rate_spontaneous):
-    for agent in G.nodes:
-        G.nodes[agent]['data'].interact(G, rate_transmission, rate_recovery, rate_spontaneous)
+def kmcInfection(G, u, infectedList, susceptibleList, adjSusceptibleList):
+    # update lists
+    susceptibleList.remove(u)
+    infectedList.append(u)
+     
+    # set state of u to "obese"
+    G.nodes[u]['data'].obese = True
 
-    for agent in G.nodes:
-        G.nodes[agent]['data'].update()
+    # update "adjSusceptibleList"
+    for v in G.neighbors(u):
+        if G.node[v]['data'].obese:
+            adjSusceptibleList.remove(u) 
+        else:
+            adjSusceptibleList.append(v)
+    
+    # return lists
+    return infectedList, susceptibleList, adjSusceptibleList
 
-def simulate(n = 300, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.049, rate_spontaneous=0.01):
-    agents = createSwissAgents(n)
-    G = createNetwork(agents)
+def kmcRecovery(G, u, infectedList, susceptibleList, adjSusceptibleList):
+    # update lists
+    infectedList.remove(u)
+    susceptibleList.append(u)
+    
+    # set state of node "u" to susceptible
+    G.node[u]['data'].obese = False
+    
+    # update "adjSusceptibleList"
+    for v in G.neighbors(u):
+        if G.node[v]['data'].obese:
+            adjSusceptibleList.append(u)   
+        else:
+            adjSusceptibleList.remove(v)
 
-    exportNetwork(G, "start")
-    print('initial obesity rate: %f' % obesityRateNetwork(G))
-    for i in range(num_timesteps):
-        step(G, rate_transmission, rate_recovery, rate_spontaneous)
+    return infectedList, susceptibleList, adjSusceptibleList
 
-    exportNetwork(G, "end")
-    print('obesity rate after %d timesteps (years): %f' % (num_timesteps, obesityRateNetwork(G)))
+def kmcInitialise(G):
+    """
+        takes graph G and returns lists
+    """
+    infectedList = []
+    susceptibleList = []
+
+    adjSusceptibleList = []
+    
+    for u in G.nodes():
+        if G.node[u]['data'].obese:
+            infectedList.append(u)
+            for v in G.neighbors(u):
+                if not G.node[v]['data'].obese:
+                    adjSusceptibleList.append(v)
+        else:
+            susceptibleList.append(u)
+
+    return infectedList, susceptibleList, adjSusceptibleList
+
+def kmcSISa(G, T, beta, gamma, alpha):
+    infectedList, susceptibleList, adjSusceptibleList = kmcInitialise(G)
+    t_tot = 0
+
+    t = []
+    S = []
+    I = []
+
+    t.append(t_tot)
+    S.append(len(susceptibleList))
+    I.append(len(infectedList))
+
+    while(t_tot < T):
+        # total transmissionary infection rate
+        Q1 = beta * len(adjSusceptibleList)
+        # total recovery rate
+        Q2 = gamma * len(infectedList)
+        # total spontaneous infection rate
+        Q3 = alpha * len(susceptibleList)
+        # overall rates
+        Q = Q1 + Q2 + Q3 
+
+        if Q == 0: break
+
+        eps = np.random.rand() * Q
+
+        a = len(susceptibleList)
+        b = len(infectedList)
+        c = len(adjSusceptibleList)
+
+        if 0 <= eps < Q1 and len(adjSusceptibleList) > 0: # transmissionary infection
+            n = np.random.randint(0, len(adjSusceptibleList))
+            infectedList, susceptibleList, adjSusceptibleList = kmcInfection(G, adjSusceptibleList[n], infectedList, susceptibleList, adjSusceptibleList)
+        elif Q1 <= eps < Q1 + Q2 and len(susceptibleList) > 0: # spontaneous infection
+            n = np.random.randint(0, len(susceptibleList))
+            infectedList, susceptibleList, adjSusceptibleList = kmcInfection(G, susceptibleList[n], infectedList, susceptibleList, adjSusceptibleList)
+        elif Q1 + Q2 <= eps < Q and len(infectedList) > 0: # recovery
+            n = np.random.randint(0, len(infectedList))
+            infectedList, susceptibleList, adjSusceptibleList = kmcRecovery(G, infectedList[n], infectedList, susceptibleList, adjSusceptibleList)
+
+        dt = -np.log(1 - np.random.random()) / Q
+        t_tot += dt
+
+        t.append(t_tot)
+        S.append(len(susceptibleList))
+        I.append(len(infectedList))
+    return np.asarray(t), np.asarray(S), np.asarray(I)
 
 def main():
-    simulate()
+    G = nx.read_graphml(os.path.join(dirname, 'graph/contagion.graphml'), node_type=int)
+    n = 1005
+    agents = createSwissAgents(n)
+    for node in G.nodes:
+        G.nodes[node]['data'] = agents[node]
 
+    t, S, I = kmcSISa(G, 1000, 0.05, 0.04, 0.2)
+
+    plt.figure()
+    plt.plot(t, S/len(G), linewidth = 1.5, label = r'$S$')
+    plt.plot(t, I/len(G), linewidth = 1.5, label = r'$I$')
+    plt.xlabel(r'Time')
+    plt.ylabel(r'Fraction')
+    plt.legend(frameon = False)
+    plt.tight_layout()
+    plt.show()
+    # simulate()
 if __name__== "__main__":
     main()

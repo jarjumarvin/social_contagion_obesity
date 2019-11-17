@@ -1,1 +1,9 @@
 Overweight data Switzerland: https://www.bfs.admin.ch/bfs/de/home/statistiken/gesundheit/determinanten/uebergewicht.html
+
+Generating Random Social Network: https://www.quora.com/Is-it-possible-to-generate-a-random-large-social-network-graph-that-is-statistically-indistinguishable-from-Facebooks-social-network-graph
+        -> https://cs.stanford.edu/people/jure/pubs/kronecker-jmlr10.pdf (Kronecker Graphs: An Approach to Modeling Networks)
+        -> https://github.com/snap-stanford/snap/tree/master/examples/krongen (snap kron generator)
+        -> https://www.osti.gov/servlets/purl/1472229 (Summarises the generation of random graphs, advantages and disadvantages)
+
+An agent-based approach for modeling dynamics of contagious disease spread
+        -> https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2729742/
