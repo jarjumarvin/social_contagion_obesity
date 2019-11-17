@@ -43,7 +43,7 @@ class Agent:
             for agent in G.neighbors(self.ID):
                 neighbor = G.nodes[agent]['data']
                 if neighbor.obese:
-                    p += (rate_transmission / deg)
+                    p += rate_transmission
 
             if(eps < p):
                 self.next_state = True
@@ -169,7 +169,7 @@ def step(G, rate_transmission, rate_recovery, rate_spontaneous):
     for agent in G.nodes:
         G.nodes[agent]['data'].update()
 
-def simulate(n = 300, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.049, rate_spontaneous=0.01):
+def simulate(n = 1000, num_timesteps = 25, rate_transmission=0.0025, rate_recovery=0.06, rate_spontaneous=0.01):
     agents = createSwissAgents(n)
     G = createNetwork(agents)
 
