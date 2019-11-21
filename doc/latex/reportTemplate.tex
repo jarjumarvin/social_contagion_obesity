@@ -98,6 +98,15 @@ In the following, we devise a model to simulate these aforementioned considerati
 
 \section{Description of the Model}
 
+The model we are using is a modification upon the so-called SIS-model, conventionally used in the mathematical modelling of epidemiology. Similar to a regular infection, our population can enter two different states, "susceptible" and "infectious" individuals, respectively. The reason for choosing this model as opposed to alternatives like the SIR-model is due to the fact that our individuals cannot grow immunity and enter a "recovered" state upon recuperation - an individual recently recovered from obesity is still as vulnerable to relapse as any other individual who never contracted the disease.  \\
+
+The SIS-model acts upon a network which we will model with a connected graph of agents, where every connection represents a social connection, e.g. "friendship" or "family", with the caveat that for simplicity, we do not differentiate between different types of relations. Contracting obesity from a friend is thus equally as likely as contracting it from a relative which is not the most realistic assumptions - studies do show that transmissions vary depending on the type of relation two individuals have. This will need to be kept in mind when evaluating the results of the simulation. \\
+
+The main modification we have to make to the traditional SIS-model is that the spread is no strictly limited to  transmission. Thus, beside the "transmission" and "recovery" rates, we need to introduce one additional rate, which is the "spontaneous rate". As the name suggests, at any given time, a single agent may develop obesity spontaneously independent of the state of those around them, since naturally, obesity is as much a personal issue as it is a social one. Furthermore, by introducing this rate, we ensure that the disease will never die out within our population, which is in line with reality.\\
+
+In our model, the spontaneous rate will serve as a base rate for every agent upon initialisation. Depending on the transmission rate and number of infectious contacts an individual has, the spontaneous rate will increase, hence it is cumulative over the number of infected contacts an agent possesses. The recovery and transmission rates will remain static in our model and will only be set at the beginning of the simulation. In other words, the rate for recovery does not increase with the number of non-obesity contact, nor does the rate of transmission.
+
+
 \section{Implementation}
 
 \section{Simulation Results and Discussion}
