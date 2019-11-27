@@ -186,18 +186,20 @@ def createNetwork(agents):
     """
         Creates a network using the LFR Benchmark Algorithm (to be improved?)
     """
-    aveDeg = 10
-    minCom = 20
-    gamma = 3
-    beta = 1.5
-    mu = 0.2
+    aveDeg = 25
+    maxDeg = int(len(agents) / 10)
+    minCom = 50
+    maxCom = int(len(agents) / 10)
+    gamma = 2
+    beta = 1.1
+    mu = 0.4
 
     G = nx.Graph()
 
     for agent in agents:
         G.add_node(agent.ID, data=agent)
     
-    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, min_community=minCom, average_degree=aveDeg, max_iters=1000, seed=2)
+    G_ = LFR_benchmark_graph(n=len(agents),tau1=gamma,tau2=beta,mu=mu,average_degree=aveDeg,max_degree=maxDeg,min_community=minCom,max_community=maxCom,seed=4)
     G.add_edges_from(G_.edges)
 
     G.remove_edges_from(nx.selfloop_edges(G))
