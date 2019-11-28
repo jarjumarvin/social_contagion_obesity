@@ -7,6 +7,17 @@
 \usepackage{epstopdf}
 \usepackage{natbib}
 \usepackage{amssymb, amsmath}
+
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage[superscript]{cite}
+
+\usepackage[nottoc]{tocbibind}
+
+
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
 %\title{Title}
@@ -98,7 +109,7 @@ In the following, we devise a model to simulate these aforementioned considerati
 
 \section{Description of the Model}
 
-The model we are using is a modification upon the so-called SIS-model, conventionally used in the mathematical modelling of epidemiology. Similar to a regular infection, our population can generally enter two different states, "susceptible" and "infectious", respectively. The reason for choosing this model as opposed to alternatives like the SIR-model is due to the fact that our individuals cannot develop immunity and enter a "recovered" state upon recuperation - an individual recently recovered from obesity is still as vulnerable to relapse as any other individual who never contracted the disease.  \\
+The model we are using is the SISa-model, which is a modification upon the so-called SIS-model, conventionally used in the mathematical modelling of epidemiology. Similar to a regular infection, our population can generally enter two different states, "susceptible" and "infectious", respectively. The reason for choosing this model as opposed to alternatives like the SIR-model is due to the fact that our individuals cannot develop immunity and enter a "recovered" state upon recuperation - an individual recently recovered from obesity is still as vulnerable to relapse as any other individual who never contracted the disease.  \\
 
 The SIS-model acts upon a network which we will model with a connected graph of agents, where every connection represents a social connection, e.g. "friendship" or "family", with the caveat that for simplicity, we do not differentiate between different types of relations. Contracting obesity from a friend is thus equally as likely as contracting it from a relative which is not the most realistic assumptions - studies do show that transmissions vary depending on the type of relation two individuals have. This may lead to discrepancies and  will need to be kept in mind when evaluating the results of the simulation. \\
 
@@ -109,15 +120,67 @@ In our model, the spontaneous rate will serve as a base rate for every agent upo
 
 \section{Implementation}
 
+\subsection{Generating a Population}
+
+Individual agents are implemented in the python class \textit{Agent}, containing multiple attributes that describe an individual in the population.
+The main attributes are \textit{age}, \textit{sex}, and \textit{obese}. The age of an agent is stored as a number, the sex is either 'f' or 'm', and the obesity of an agent is a boolean value. 
+Additionally, there is a variable called \textit{next\_state}, that is used in each step of the iteration, described in chapter 5.3. \\
+
+To create a population of agents, the methods \textit{createSwissAgents1992} and \textit{createSwissAgents2017} are used. 
+Given a number \textit{n}, these methods return a list of \textit{n} agents whose ages and obesity are distributed according to the age structure\cite{agestructure} and obesity rates\cite{bmistatistics} for females and males by age group in Switzerland in 1992 / 2017 respectively.
+
+\subsection{Generating the Social Network}
+
+Next, we want to generate a random graph whose nodes and edges represent agents in a social network and friendship connections respectively. To generate networks we use the python library \textit{NetworkX} which lets us create and manipulate graph structures.
+
+Given a list of agents, the method \textit{createNetwork} adds nodes containing the individual agents to an empty graph. Next, connections between the agents are generated using...
+
+\subsection{Timesteps and Iterations}
+
+After a population has been initialised and a friendship-network generated, the function \textit{simulate} takes the network and the global rates of transmission \(\beta\), recovery \(\gamma\) and spontaneous infection \(\alpha\), described in chapter 4. Then it simulates the spreading-dynamics of obesity in the network.
+It does this by calling the \textit{step} function. This function iterates over all agents in the network and calls each agents \textit{interact} function. Then it iterates over all agents again, and calls each agents \textit{update} function. \\
+
+In the \textit{interact} function, if the agent is currently obese, he will recover (set \textit{next\_state} to \textit{False}) with probability \(\mu \cdot \gamma\). 
+Otherwise, if the agent is not currently obese, his initial probability to become obese is \(p = \mu \cdot \alpha\). 
+For each obese friend, \(p\) increases by \(\mu \cdot \frac{\beta}{k}\). Finally, he becomes obese (sets \textit{next\_state} to \textit{True}) with probability \(p\). \\
+
+In the \textit{update} function, the agent updates its obesity state to \textit{next\_state}. The \textit{interact} function is shown more accurately in \textit{Algorithm 1}.
+
+\begin{algorithm}[h]
+    \KwIn{Agent \textit{self}, Graph \(G\), rates of transmission \(\beta\), recovery \(\gamma\), spontaneous infection \(\alpha\) }
+
+    \KwOut{agents next\_state is set}
+    \(\mu \sim N(1, 0.25)\)\;
+    \(\epsilon \sim U(0, 1)\)\;
+    \eIf{\textit{self} is obese}{
+        \If{\(\epsilon < \mu * \gamma\)}{
+            next\_state = False\;
+        }
+    }{
+        p = \(\mu * \alpha\)\;
+        k = size(contacts(\textit{self}))\;
+        \For{contact in contacts(\textit{self})}{
+            \If{contact is obese}{
+                \(\delta \sim N(1, 0.25)\)\;
+                p += \(\delta * (\frac{\beta}{k})\)\;
+            }
+        }
+        \If{\(\epsilon < p\)}{
+            next\_state = True\;
+        }
+    }
+    \caption{{\textit{interact} function of an agent.} \label{Algorithm}}
+\end{algorithm}
+
 \section{Simulation Results and Discussion}
 
 \section{Summary and Outlook}
 
+\newpage
+
 \section{References}
 
-
-
-
-
+\bibliographystyle{unsrt}
+\bibliography{refs}
 
 \end{document}

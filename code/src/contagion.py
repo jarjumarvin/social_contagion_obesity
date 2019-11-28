@@ -47,17 +47,19 @@ class Agent:
         deg = G.degree(self.ID)
 
         eps = np.random.rand()
+        mu = np.random.normal(1, 0.25)
     
         if(self.obese):
-            if(eps < rate_recovery):
+            if(eps < mu * rate_recovery):
                 self.next_state = False
         else:
-            p = rate_spontaneous
+            p = mu * rate_spontaneous
 
             for agent in G.neighbors(self.ID):
                 neighbor = G.nodes[agent]['data']
                 if neighbor.obese:
-                    p += rate_transmission / deg
+                    delta = np.random.normal(1, 0.25)
+                    p += delta * (rate_transmission / deg)
 
             if(eps < p):
                 self.next_state = True
@@ -87,10 +89,22 @@ def ageFromGroup(group):
     elif group == 3:
         return np.random.randint(64, 99)
 
-def createSwissAgents(n):
+def createSwissAgents1992(n):
+    obesityRateMale1992 = { '15-24': 0.011, '25-34': 0.038, '35-44': 0.053, '45-54': 0.088, '55-64': 0.107, '65-74': 0.094, '75+': 0.064 }
+    obesityRateFemale1992 = { '15-24': 0.07, '25-34': 0.024, '35-44': 0.043, '45-54': 0.054, '55-64': 0.087, '65-74': 0.083, '75+': 0.071 }
+
+    return createSwissAgents(n, [obesityRateMale1992, obesityRateFemale1992])
+
+def createSwissAgents2017(n):
+    obesityRateMale2017 = { '15-24': 0.051, '25-34': 0.092, '35-44': 0.11, '45-54': 0.144, '55-64': 0.174, '65-74': 0.177, '75+': 0.117 }
+    obesityRateFemale2017 = { '15-24': 0.03, '25-34': 0.057, '35-44': 0.091, '45-54': 0.121, '55-64': 0.153, '65-74': 0.141, '75+': 0.125 }
+
+    return createSwissAgents(n, [obesityRateMale2017, obesityRateFemale2017])
+
+def createSwissAgents(n, obesity_rates):
     """
         Returns a list of n Agent instances whose attributes are distributed according to the Swiss age distribution
-        and the Swiss obesity rates according to age and gender:
+        and the Swiss obesity rates according to age and sex:
 
         Age Distribution (2017):
         [15-24] : 14.67%
@@ -118,11 +132,6 @@ def createSwissAgents(n):
         [65-74]     9.4%        8.3%
         [75+]       6.4%        7.1%
     """
-    obesityRateMale2017 = { '15-24': 0.051, '25-34': 0.092, '35-44': 0.11, '45-54': 0.144, '55-64': 0.174, '65-74': 0.177, '75+': 0.117 }
-    obesityRateFemale2017 = { '15-24': 0.03, '25-34': 0.057, '35-44': 0.091, '45-54': 0.121, '55-64': 0.153, '65-74': 0.141, '75+': 0.125 }
-
-    obesityRateMale1992 = { '15-24': 0.011, '25-34': 0.038, '35-44': 0.053, '45-54': 0.088, '55-64': 0.107, '65-74': 0.094, '75+': 0.064 }
-    obesityRateFemale1992 = { '15-24': 0.07, '25-34': 0.024, '35-44': 0.043, '45-54': 0.054, '55-64': 0.087, '65-74': 0.083, '75+': 0.071 }
 
     # Create discrete age probability distribution
     pk = (14.67, 47., 16.39, 21.94)
@@ -138,8 +147,8 @@ def createSwissAgents(n):
         age = ageFromGroup(ageDistribution.rvs()) 
         # 50% male / 50% female
         sex = 'm' if i % 2 == 0 else 'f' 
-        #pick obesity rates depening on gender
-        rates = obesityRateFemale1992 if sex == 'f' else obesityRateMale1992
+        #pick obesity rates depening on sex
+        rates = obesity_rates[0] if sex == 'm' else obesity_rates[1]
         ## rates = obesityRateFemale2017 if sex == 'f' else obesityRateMale2017
 
         # set obesity of agent according to distribution
@@ -158,18 +167,27 @@ def createSwissAgents(n):
 
     return agents
 
-def exportNetwork(G, name):
+def createNetwork(agents):
     """
-        Generates a .gexf file. This graph contains all nodes, edges and a special column indicating the state of obesity.
+        Creates a network using the LFR Benchmark Algorithm (to be improved?)
     """
-    G_ = deepcopy(G)
-    agents = nx.get_node_attributes(G_, 'data')
+    aveDeg = 10
+    minCom = 20
+    gamma = 3
+    beta = 1.5
+    mu = 0.2
+
+    G = nx.Graph()
 
     for agent in agents:
-        agents[agent] = 1 if agents[agent].obese else 0
+        G.add_node(agent.ID, data=agent)
     
-    nx.set_node_attributes(G_, agents, 'data')
-    nx.write_gexf(G_, os.path.join(dirname, "graph/" ,name + ".gexf"))
+    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, min_community=minCom, average_degree=aveDeg, max_iters=1000, seed=2)
+
+    G.add_edges_from(G_.edges)
+
+    G.remove_edges_from(nx.selfloop_edges(G))
+    return G
 
 def obesityRateNetwork(G):
     """
@@ -182,28 +200,18 @@ def obesityRateNetwork(G):
             count += 1
     return count / n
 
-def createNetwork(agents):
+def exportNetwork(G, name):
     """
-        Creates a network using the LFR Benchmark Algorithm (to be improved?)
+        Generates a .gexf file. This graph contains all nodes, edges and a special column indicating the state of obesity.
     """
-    aveDeg = 25
-    maxDeg = int(len(agents) / 10)
-    minCom = 50
-    maxCom = int(len(agents) / 10)
-    gamma = 2
-    beta = 1.1
-    mu = 0.4
-
-    G = nx.Graph()
+    G_ = deepcopy(G)
+    agents = nx.get_node_attributes(G_, 'data')
 
     for agent in agents:
-        G.add_node(agent.ID, data=agent)
+        agents[agent] = 1 if agents[agent].obese else 0
     
-    G_ = LFR_benchmark_graph(n=len(agents),tau1=gamma,tau2=beta,mu=mu,average_degree=aveDeg,max_degree=maxDeg,min_community=minCom,max_community=maxCom,seed=4)
-    G.add_edges_from(G_.edges)
-
-    G.remove_edges_from(nx.selfloop_edges(G))
-    return G
+    nx.set_node_attributes(G_, agents, 'data')
+    nx.write_gexf(G_, os.path.join(dirname, "graph/" ,name + ".gexf"))
 
 def step(G, rate_transmission, rate_recovery, rate_spontaneous):
     """
@@ -249,7 +257,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
     rate_spontaneous_range = np.linspace(spontaneous[0], spontaneous[1], size)
 
     # generate population
-    agents = createSwissAgents(n)
+    agents = createSwissAgents1992(n)
     G = createNetwork(agents)
     init = obesityRateNetwork(G)
 
@@ -273,7 +281,6 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
 
             ratesInd /= iterations # rates for this tuple of parameters normalised
             ratesByTimeStep[i][j] = ratesInd
-            # print(ratesInd)
             finalRate[i][j] = sum / iterations
 
     # rates for 1997, 2002, 2007, 2012, 2017
@@ -383,7 +390,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
 
 def main():
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(size=25)
-    produceClosestGraph(G, 25, bestFitRecovery, bestFitSpontaneous, 15)
+    # produceClosestGraph(G, 25, bestFitRecovery, bestFitSpontaneous, 15)
 
 if __name__== "__main__":
     main()
