@@ -15,11 +15,6 @@
 
 \usepackage[superscript]{cite}
 
-\usepackage[nottoc]{tocbibind}
-
-
-\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
-
 %\title{Title}
 %\author{Name 1, Name 2}
 %\date{date}
@@ -96,26 +91,30 @@
 \section{Individual contributions}
 
 \section{Introduction and Motivations}
-Human behaviour is chiefly governed by societal and environmental influences. Social interactions, nurture and upbringing account for an individual’s identity, their choices and way of life, which gives rise to the notion that sociological and behavioural phenomena could be transmitted via social networks in a matter not unlike a viral contagion.\\
+Human behaviour is chiefly governed by societal and environmental influences. Social interactions, nurture and upbringing account for an individual’s identity, their choices and way of life, which gives rise to the notion that sociological and behavioural phenomena could be transmitted via social networks in a matter comparable to a viral contagion.\\
 
-Traditionally, the term "contagion" is associated with strictly epidemiological factors, i.e. infectious diseases or viruses that spread through networks by human contact. In a similar vein, we can extend this connotation by considering a "social contagion" as a behavioural pattern that propagates interpersonally through a \textit{social} network via interaction. Thus, social contagions have the ability to become quintessential determinants for an individual’s health and mental well-being. Based on this premise, it enables us to study behavioural phenomena using network analytics and classic epidemiological models, albeit most of those will be subject to slight modifications in order to be compatible with the problems we are concerned with.\\
+Traditionally, the term "contagion" is associated with strictly epidemiological factors, i.e. infectious diseases or viruses that spread through networks by human contact. In a similar vein, we can extend this connotation by considering a "social contagion" as a behavioural pattern that propagates inter-personally through a \textit{social} network via interaction. Thus, social contagions have the ability to become quintessential determinants for an individual’s health and mental well-being. Based on this premise, it enables us to study behavioural phenomena using network analytics and classic epidemiological models, albeit most of those will be subject to slight modifications in order to be compatible with the problems we are concerned with.\\
 
-One such instance of a recent issue we are facing is the prevalence of obesity in modern society, which may be regarded as an epidemic in its own right. As of 2017, approximately 40\% of the Swiss populated is overweight and a further 10\% is obese. In juxtaposition to figures of 1992, this represents a full 100\% increase in the last 25 years. This issue is not limited to Switzerland, by all means – We observe similar trends, if not starker ones, throughout the rest of the globe (in fact, Switzerland holds up comparatively well in that regard). Hitherto, the obesity epidemic cannot be adequately explained by genetic factors (genetics may merely affect one’s predisposition towards obesity) and the epidemic permeates through all ages and socioeconomic groups. Hence, as we are lacking congenital or medicals explanations to expound this sudden upsurge, this allows our theory of a social contagion to step to the fore.\\
+One such instance of a recent issue we are facing is the prevalence of obesity in modern society, which may be regarded as an epidemic in its own right. As of 2017, approximately 40\% of the Swiss populated is overweight and a further 10\% is obese. In juxtaposition to figures of 1992, this represents a full 100\% increase in the last 25 years [3]. This issue is not limited to Switzerland, by all means – We observe similar trends, if not starker ones, throughout the rest of the globe (in fact, Switzerland holds up comparatively well in that regard). Hitherto, the obesity epidemic cannot be adequately explained by genetic factors (genetics may merely affect one’s predisposition towards obesity) [2] and the epidemic permeates through all ages and socioeconomic groups. Hence, as we are lacking congenital or medicals explanations to expound this sudden upsurge, this allows the theory of a social contagion to step to the fore.\\
 
-We hypothesise that an individual’s attitude towards obesity and one’s habits change as those around them do. For instance, a person’s tolerance for weight-gain may be increased if they converse with multiple contacts that are also obese and group activities like eating-out or smoking may be forced upon an individual by means of peer pressure. Furthermore, if a child has obese parents, this might reflect in the child’s upbringing and diet.\\
+The hypothesis is that an individual’s attitude towards obesity and one’s habits change as those around them do. For instance, a person’s tolerance for weight-gain may be increased if they converse with multiple contacts that are obese, and group activities like eating-out or smoking may be forced upon an individual by means of peer pressure. Furthermore, if a child has obese parents, this might reflect in the child’s upbringing and diet.\\
 
-In the following, we devise a model to simulate these aforementioned considerations on the basis of a social network that will be representative of the demographics of Switzerland. We will try interpolate between the figures we observe from 1992 and 2017 and moreover, attempt to make a prediction for the “disease” process in the years to come. Ideally, we will want to confirm the correlation between the spread of obesity and social influence, or in the very least, showcase social contagions and the modelling of those as a viable consideration for a plethora of behavioural phenomena and pseudo-epidemics.
+In the following, we implement a model to simulate these aforementioned considerations on the basis of a social network that will be representative of the demographics of Switzerland. We will try interpolate between the figures we observe from 1992 and 2017 and moreover, attempt to make a prediction for the “disease” process in the years to come. Ideally, we will want to confirm the correlation between the spread of obesity and social influence, or in the very least, showcase social contagions and the modelling of those as a viable consideration for a plethora of behavioural phenomena and pseudo-epidemics.
 
 
 \section{Description of the Model}
 
-The model we are using is the SISa-model, which is a modification upon the so-called SIS-model, conventionally used in the mathematical modelling of epidemiology. Similar to a regular infection, our population can generally enter two different states, "susceptible" and "infectious", respectively. The reason for choosing this model as opposed to alternatives like the SIR-model is due to the fact that our individuals cannot develop immunity and enter a "recovered" state upon recuperation - an individual recently recovered from obesity is still as vulnerable to relapse as any other individual who never contracted the disease.  \\
+The model we are using is a modification upon the so-called SIS-model as described in REFERENCE which is conventionally used in the mathematical modelling of epidemiology. Similar to a regular infection, our population can generally enter two different states, "susceptible" and "infectious", respectively. The reason for choosing this model as opposed to alternatives like the SIR-model is due to the fact that our individuals cannot develop immunity and enter a "recovered" state upon recuperation - an individual recently recovered from obesity is still as vulnerable to relapse as any other individual who never contracted the disease.  \\
 
-The SIS-model acts upon a network which we will model with a connected graph of agents, where every connection represents a social connection, e.g. "friendship" or "family", with the caveat that for simplicity, we do not differentiate between different types of relations. Contracting obesity from a friend is thus equally as likely as contracting it from a relative which is not the most realistic assumptions - studies do show that transmissions vary depending on the type of relation two individuals have. This may lead to discrepancies and  will need to be kept in mind when evaluating the results of the simulation. \\
+The SIS-model acts upon a network which will be modelled by a connected graph of agents, where every connection represents a social connection, e.g. "friendship" or "family", with the caveat that for simplicity, we do not differentiate between different types of relations. Contracting obesity from a friend is thus equally as likely as contracting it from a relative which may not be the most realistic assumption - studies do show that transmissions vary depending on the type of relation two individuals have [2]. This may lead to discrepancies and  will need to be kept in mind when evaluating the results of the simulation. \\
 
-The main modification we have to make to the traditional SIS-model is that the spread is not strictly limited to  transmission. Thus, beside the "transmission" and "recovery" rates, we need to introduce one additional rate, which is the "spontaneous rate". As the name suggests, at any given time, a single agent may develop obesity spontaneously independent of the state of those around them, since naturally, obesity is as much a personal issue as it is a social one. Furthermore, by introducing this rate, we ensure that the disease will never die out within our population, which is in line with reality.\\
+The main modification that is made to the traditional SIS-model is that the spread is not strictly limited to  transmission [1]. Thus, beside the "transmission" and "recovery" rates, we need to introduce one additional rate, which is the "spontaneous rate". As the name suggests, at any given time, a single agent may develop obesity spontaneously independent of the state of those around them. By introducing this rate, it is ensured that the disease will never die out within our population, which is in line with reality.\\
 
-In our model, the spontaneous rate will serve as a base rate for every agent upon initialisation. Depending on the transmission rate and number of infectious contacts an individual has, the spontaneous rate will increase, hence it is cumulative over the number of infected contacts an agent possesses. The recovery and transmission rates will remain static in our model and will only be set at the beginning of the simulation. In other words, the rate for recovery does not increase with the number of non-obesity contact, nor does the rate of transmission.
+In the altered model, the spontaneous rate will serve as a base rate for every agent upon initialisation. Depending on the transmission rate and number of infectious contacts an individual has, the overall likelihood of contracting obesity will then increase, hence the probability is cumulative over the number of infected contacts an agent possesses. The more connections an individual has, the more the impact of one single obese contact will be diluted. This means for instance that an agent with two friends which are both obese is more likely to become obese then one with 100 friends out of which two are obese. The rationale behind that decision is that the fewer social contacts one agent has, the more time is spent with each one. The recovery, spontaneous and transmission rates will remain static in our model and will only be set at the beginning of the simulation.
+\\
+
+In our simulations, we will use the rates presented in [1] as a starting point and simulate 25 years (1992 - 2017) of development. One must bear in mind that these rates were found in population studies pertaining the US, thus are not likely to give us the figures we observed in Switzerland in 2017. Hence, we will use the spontaneous and recovery rates as parameters in order to find the numbers via which we obtain the Swiss obesity figures we are looking for. Note that the transmission rate will not serve as a parameter in our simulations, as we assume that Switzerland and the US do not differ in that regard as strongly as in the other two rates.
+
 
 
 \section{Implementation}
@@ -146,7 +145,7 @@ For each obese friend, \(p\) increases by \(\mu \cdot \frac{\beta}{k}\). Finally
 
 In the \textit{update} function, the agent updates its obesity state to \textit{next\_state}. The \textit{interact} function is shown more accurately in \textit{Algorithm 1}.
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \KwIn{Agent \textit{self}, Graph \(G\), rates of transmission \(\beta\), recovery \(\gamma\), spontaneous infection \(\alpha\) }
 
     \KwOut{agents next\_state is set}
@@ -175,8 +174,6 @@ In the \textit{update} function, the agent updates its obesity state to \textit{
 \section{Simulation Results and Discussion}
 
 \section{Summary and Outlook}
-
-\newpage
 
 \section{References}
 
