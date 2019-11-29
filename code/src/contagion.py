@@ -390,7 +390,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
 
 def main():
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(size=25)
-    # produceClosestGraph(G, 25, bestFitRecovery, bestFitSpontaneous, 15)
+    produceClosestGraph(G, 25, bestFitRecovery, bestFitSpontaneous, 15)
 
 if __name__== "__main__":
     main()
