@@ -297,7 +297,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
             for k in range(1, 6): # 1,2,3,4,5
                 residual = ratesByTimeStep[i][j][k * 5] - ratesYear[k]
                 residual *= residual
-                norms[i][j] = residual
+                norms[i][j] += residual
     
     bestFitRecovery = 1 # best fitting recovery rate
     indexRecovery = 0 # index in range_recovery_rate
@@ -315,6 +315,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
                 indexSpontaneous = i
                 indexRecovery = j
 
+    print('minimal norm: ', currentMin)
     # norme rates for 1992, 1997, 2002, 2007, 2012, 2017
     condensedTimeStepRates = []
     for i in range(6):
