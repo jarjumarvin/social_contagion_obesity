@@ -124,23 +124,23 @@ In our simulations, we will use the rates presented in [1] as a starting point a
 
 \subsection{Generating a Population}
 
-Individual agents are implemented in the python class \textit{Agent}, containing multiple attributes that describe an individual in the population.
-The main attributes are \textit{age}, \textit{sex}, and \textit{obese}. The age of an agent is stored as a number, the sex is either 'f' or 'm', and the obesity of an agent is a boolean value. 
-Additionally, there is a variable called \textit{next\_state}, that is used in each step of the iteration, described in chapter 5.3. \\
+Individual agents are implemented in the Python class \textit{Agent}, containing multiple attributes that describe an individual in the population.
+The main attributes are \textit{age}, \textit{sex}, and \textit{obese}. The age of an agent is stored as a number, the sex is either 'f' or 'm', and the obesity of an agent is a Boolean value. 
+Additionally, there is a variable called \textit{next\_state}, that is used in each step of the iteration, as described in chapter 5.3. \\
 
 To create a population of agents, the methods \textit{createSwissAgents1992} and \textit{createSwissAgents2017} are used. 
-Given a number \textit{n}, these methods return a list of \textit{n} agents whose ages and obesity are distributed according to the age structure\cite{agestructure} and obesity rates\cite{bmistatistics} for females and males by age group in Switzerland in 1992 / 2017 respectively.
+Given a number \textit{n}, these methods return a list of \textit{n} agents whose ages and obesity are distributed according to the age structure\cite{agestructure} and obesity rates\cite{bmistatistics} for females and males by age group in Switzerland in 1992/2017.
 
 \subsection{Generating the Social Network}
 
-Next, we want to generate a random graph whose nodes and edges represent agents in a social network and friendship connections respectively. To generate networks we use the python library \textit{NetworkX} which lets us create and manipulate graph structures.
+Next, we want to generate a random graph whose nodes and edges represent agents in a social network and friendship connections, respectively. To generate networks we use the Python library \textit{NetworkX} which lets us create and manipulate graph structures.
 
 Given a list of agents, the method \textit{createNetwork} adds nodes containing the individual agents to an empty graph. Next, connections between the agents are generated using...
 
 \subsection{Timesteps and Iterations}
 
-After a population has been initialised and a friendship-network generated, the function \textit{simulate} takes the network and the global rates of transmission \(\beta\), recovery \(\gamma\) and spontaneous infection \(\alpha\), described in chapter 4. Then it simulates the spreading-dynamics of obesity in the network.
-It does this by calling the \textit{step} function. This function iterates over all agents in the network and calls each agents \textit{interact} function. Then it iterates over all agents again, and calls each agents \textit{update} function. \\
+After initialising a population and generating the friendship-network, the function \textit{simulate} takes the network and the global rates of transmission \(\beta\), recovery \(\gamma\) and spontaneous infection \(\alpha\), as described in chapter 4. Then, it simulates the spreading-dynamics of obesity in the network.
+It does this by calling the \textit{step} function. This function iterates over all agents in the network and calls each agent's \textit{interact} function. Then it iterates over all agents again, and calls each agent's \textit{update} function. \\
 
 In the \textit{interact} function, if the agent is currently obese, he will recover (set \textit{next\_state} to \textit{False}) with probability \(\mu \cdot \gamma\). 
 Otherwise, if the agent is not currently obese, his initial probability to become obese is \(p = \mu \cdot \alpha\). 
