@@ -234,7 +234,7 @@ def simulate(G, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.04,
     
     return rates
 
-def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06), spontaneous=(0.005, 0.06), timesteps=25, iterations=5):
+def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06), spontaneous=(0.001, 0.03), timesteps=25, iterations=5):
     """
         produces a parameter dependence plot (rate of recovery, rate of spontaneous infection)
         does (`size` * `size`) * `iterations` simulations of `timesteps` timesteps
@@ -356,6 +356,12 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
 
     return G, bestFitRecovery, bestFitSpontaneous
 
+def predictSwissObesity(n = 500, timesteps=25, recovery=0, spontaneous=0):
+    agents = createSwissAgents2017(n)
+    G = createNetwork(agents)
+
+
+
 def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
     """
         saves the given graph G in graph/normedBegin
@@ -364,6 +370,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
 
         saves the graph thats closest to the average in final obesity rate to the average in graph/optnormedStopimalStop
     """
+    print("starting averaged graph with recovery: %1.3f, spontaneous: %1.3f")
     graphs = []
     obesities = []
 
@@ -383,14 +390,38 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
         c = obesities[closest] - avg
         if (r * r) < (c * c):
             closest = i
+    print("done producing average graph")
+    return graphs[closest]
+
+def experiment_ParameterDependence_Plot_SaveGraphs(size):
+    print("begin experiment 1")
+    
+    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=25)
 
     exportNetwork(G, "normedBegin")
-    exportNetwork(graphs[closest], "normedStop")
+    G_ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
+    exportNetwork(G, "normedEnd")
+
+    print("end experiment 1")
+
+def experiment_PredictDevelopment_SaveGraphs(size, rate_recovery, rate_spontaneous):
+    print("begin experiment 2")
+    
+    agents = createSwissAgents2017(size)
+    G = createNetwork(agents)
+
+    exportNetwork(G, "predictStart")
+    G_ = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=15)
+    exportNetwork(G, "predictEnd")
+    
+    print("end experiment 2")
 
 
 def main():
-    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(size=25)
-    produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
+    n = 500
+    rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
+    experiment_PredictDevelopment_SaveGraphs(n, rate_recovery, rate_spontaneous)
+
 
 if __name__== "__main__":
     main()
