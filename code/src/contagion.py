@@ -171,19 +171,18 @@ def createNetwork(agents):
     """
         Creates a network using the LFR Benchmark Algorithm (to be improved?)
     """
-    aveDeg = 10
-    minCom = 20
+    aveDeg = 15
+    maxDeg = 40
     gamma = 3
-    beta = 1.5
-    mu = 0.2
+    beta = 2
+    mu = 0.25
 
     G = nx.Graph()
 
     for agent in agents:
         G.add_node(agent.ID, data=agent)
     
-    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, min_community=minCom, average_degree=aveDeg, max_iters=1000, seed=2)
-
+    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
     G.add_edges_from(G_.edges)
 
     G.remove_edges_from(nx.selfloop_edges(G))
@@ -235,7 +234,7 @@ def simulate(G, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.04,
     
     return rates
 
-def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06), spontaneous=(0.001, 0.04), timesteps=25, iterations=5):
+def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06), spontaneous=(0.005, 0.06), timesteps=25, iterations=5):
     """
         produces a parameter dependence plot (rate of recovery, rate of spontaneous infection)
         does (`size` * `size`) * `iterations` simulations of `timesteps` timesteps
@@ -294,32 +293,32 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
     # generate square norms
     for i in range(size):
         for j in range(size):
+            norm = 0
             for k in range(1, 6): # 1,2,3,4,5
                 residual = ratesByTimeStep[i][j][k * 5] - ratesYear[k]
                 residual *= residual
-                norms[i][j] += residual
-    
-    bestFitRecovery = 1 # best fitting recovery rate
-    indexRecovery = 0 # index in range_recovery_rate
-    bestFitSpontaneous = 1 # best fitting spontaneous rate
-    indexSpontaneous = 0 # index in range_spontaneous_rate
+                norm += residual
+            norms[i][j] = norm
 
-    currentMin = 1000000 # current minimal norm
+    # for i in range(size): # find minimal rates an indexes
+    #     for j in range(size):
+    #         if norms[i][j] < currentMin:
+    #             currentMin = norms[i][j]
+    #             bestFitSpontaneous = rate_spontaneous_range[i]
+    #             bestFitRecovery = rate_recovery_range[j]
+    #             indexSpontaneous = i
+    #             indexRecovery = j
 
-    for i in range(size): # find minimal rates an indexes
-        for j in range(size):
-            if norms[i][j] < currentMin:
-                currentMin = norms[i][j]
-                bestFitSpontaneous = rate_spontaneous_range[i]
-                bestFitRecovery = rate_recovery_range[j]
-                indexSpontaneous = i
-                indexRecovery = j
+    # indeces of rates leading to minimal norm
+    ri, ci = norms.argmin() // norms.shape[1], norms.argmin() % norms.shape[1]
 
-    print('minimal norm: ', currentMin)
+    bestFitSpontaneous = rate_spontaneous_range[ri] # best fitting spontaneous rate
+    bestFitRecovery = rate_recovery_range[ci] # best fitting recovery rate
+
     # norme rates for 1992, 1997, 2002, 2007, 2012, 2017
     condensedTimeStepRates = []
     for i in range(6):
-        condensedTimeStepRates.append(ratesByTimeStep[indexSpontaneous][indexRecovery][i * 5])
+        condensedTimeStepRates.append(ratesByTimeStep[ri][ci][i * 5])
 
     end = timer()
     print('time elapsed:', end - start, 'seconds')
@@ -343,7 +342,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.001, 0.06
     plt.subplot(1, 2, 2)
     plt.title('time evolution using least squares solution\nrecovery rate %1.6f and spontaneous rate %1.6f' % (bestFitRecovery, bestFitSpontaneous), fontsize = 'xx-large')
     plt.plot(years, ratesYear, '-o', label='real data')
-    plt.plot(yearsFull, ratesByTimeStep[indexSpontaneous][indexRecovery], '-^', label='simulation')
+    plt.plot(yearsFull, ratesByTimeStep[ri][ci], '-^', label='simulation')
     plt.ylabel('rate of obesity', fontsize = 'xx-large')
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
@@ -391,7 +390,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
 
 def main():
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(size=25)
-    produceClosestGraph(G, 25, bestFitRecovery, bestFitSpontaneous, 15)
+    produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
 
 if __name__== "__main__":
     main()
