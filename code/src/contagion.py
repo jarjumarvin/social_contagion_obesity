@@ -11,7 +11,7 @@ from networkx.algorithms.community import LFR_benchmark_graph
 
 dirname = os.path.dirname(__file__)
 
-np.random.seed(12) # 7 - 0.052, 12 - 0.056
+np.random.seed(7) # 7 - 0.052, 12 - 0.056
 
 class Agent:
     """
@@ -182,7 +182,7 @@ def createNetwork(agents):
     for agent in agents:
         G.add_node(agent.ID, data=agent)
     
-    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000)
+    G_ = LFR_benchmark_graph(len(agents), gamma, beta, mu, max_degree=maxDeg, average_degree=aveDeg, max_iters=1000, seed=42)
     G.add_edges_from(G_.edges)
 
     G.remove_edges_from(nx.selfloop_edges(G))
@@ -300,18 +300,10 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
                 norm += residual
             norms[i][j] = norm
 
-    # for i in range(size): # find minimal rates an indexes
-    #     for j in range(size):
-    #         if norms[i][j] < currentMin:
-    #             currentMin = norms[i][j]
-    #             bestFitSpontaneous = rate_spontaneous_range[i]
-    #             bestFitRecovery = rate_recovery_range[j]
-    #             indexSpontaneous = i
-    #             indexRecovery = j
-
     # indeces of rates leading to minimal norm
-    ri, ci = norms.argmin() // norms.shape[1], norms.argmin() % norms.shape[1]
-
+    indeces = np.unravel_index(norms.argmin(), norms.shape)
+    ri = indeces[0]
+    ci = indeces[1]
     bestFitSpontaneous = rate_spontaneous_range[ri] # best fitting spontaneous rate
     bestFitRecovery = rate_recovery_range[ci] # best fitting recovery rate
 
@@ -320,6 +312,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
     for i in range(6):
         condensedTimeStepRates.append(ratesByTimeStep[ri][ci][i * 5])
 
+    print("minimal norm:", norms[ri][ci])
     end = timer()
     print('time elapsed:', end - start, 'seconds')
 
@@ -340,7 +333,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
 
     ## time evolution using least squares
     plt.subplot(1, 2, 2)
-    plt.title('time evolution using least squares solution\nrecovery rate %1.6f and spontaneous rate %1.6f' % (bestFitRecovery, bestFitSpontaneous), fontsize = 'xx-large')
+    plt.title('time evolution using least squares solution\nrecovery rate %1.3f and spontaneous rate %1.3f' % (bestFitRecovery, bestFitSpontaneous), fontsize = 'xx-large')
     plt.plot(years, ratesYear, '-o', label='real data')
     plt.plot(yearsFull, ratesByTimeStep[ri][ci], '-^', label='simulation')
     plt.ylabel('rate of obesity', fontsize = 'xx-large')
@@ -370,7 +363,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
 
         saves the graph thats closest to the average in final obesity rate to the average in graph/optnormedStopimalStop
     """
-    print("starting averaged graph with recovery: %1.3f, spontaneous: %1.3f")
+    print("starting averaged graph with recovery: %1.3f, spontaneous: %1.3f" % (recovery, spontaneous))
     graphs = []
     obesities = []
 
@@ -391,31 +384,32 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
         if (r * r) < (c * c):
             closest = i
     print("done producing average graph")
-    return graphs[closest]
+    return graphs[closest], obesities
 
 def experiment_ParameterDependence_Plot_SaveGraphs(size):
     print("begin experiment 1")
     
-    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=25)
+    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
 
     exportNetwork(G, "normedBegin")
-    G_ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
-    exportNetwork(G, "normedEnd")
+    G_, _ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
+    exportNetwork(G_, "normedEnd")
 
     print("end experiment 1")
+    return bestFitRecovery, bestFitSpontaneous
 
 def experiment_PredictDevelopment_SaveGraphs(size, rate_recovery, rate_spontaneous):
     print("begin experiment 2")
-    
     agents = createSwissAgents2017(size)
     G = createNetwork(agents)
+    print("starting in 2017 with obesity rate %1.3f" % (obesityRateNetwork(G)))
 
     exportNetwork(G, "predictStart")
-    G_ = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=15)
-    exportNetwork(G, "predictEnd")
+    G_, rates = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=15)
+    exportNetwork(G_, "predictEnd")
     
+    print("ended on average in 2042 with obesity rate %1.3f and variance %1.3f" % (obesityRateNetwork(G_), np.var(rates)))
     print("end experiment 2")
-
 
 def main():
     n = 500
