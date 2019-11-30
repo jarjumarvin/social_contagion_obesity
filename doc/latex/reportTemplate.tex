@@ -137,9 +137,9 @@ Given a list of agents, the method \textit{createNetwork} adds nodes containing 
 After initialising a population and generating the friendship-network, the function \textit{simulate} takes the network and the global rates of transmission \(\beta\), recovery \(\gamma\) and spontaneous infection \(\alpha\), as described in chapter 4. Then, it simulates the spreading-dynamics of obesity in the network.
 It does this by calling the \textit{step} function. This function iterates over all agents in the network and calls each agent's \textit{interact} function. Then it iterates over all agents again, and calls each agent's \textit{update} function. \\
 
-In the \textit{interact} function, if the agent is currently obese, he will recover (set \textit{next\_state} to \textit{False}) with probability \(\mu \cdot \gamma\). 
-Otherwise, if the agent is not currently obese, his initial probability to become obese is \(p = \mu \cdot \alpha\). 
-For each obese friend, \(p\) increases by \(\mu \cdot \frac{\beta}{k}\). Finally, he becomes obese (sets \textit{next\_state} to \textit{True}) with probability \(p\). \\
+In the \textit{interact} function, if the agent is currently obese, they will recover (set \textit{next\_state} to \textit{False}) with probability \(\mu \cdot \gamma\). 
+Otherwise, if the agent is not currently obese, their initial probability to become obese is \(p = \mu \cdot \alpha\). 
+For each obese friend, \(p\) increases by \(\mu \cdot \frac{\beta}{k}\). Finally, they become obese (sets \textit{next\_state} to \textit{True}) with probability \(p\). \\
 
 In the \textit{update} function, the agent updates its obesity state to \textit{next\_state}. The \textit{interact} function is shown more accurately in \textit{Algorithm 1}.
 
