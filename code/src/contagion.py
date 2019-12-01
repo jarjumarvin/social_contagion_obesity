@@ -392,20 +392,17 @@ def experiment_ParameterDependence_Plot_SaveGraphs(size):
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
 
     exportNetwork(G, "normedBegin")
-    G_, _ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=15)
+    G_, _ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
     exportNetwork(G_, "normedEnd")
-
     print("end experiment 1")
-    return bestFitRecovery, bestFitSpontaneous
+    return G_, bestFitRecovery, bestFitSpontaneous
 
-def experiment_PredictDevelopment_SaveGraphs(size, rate_recovery, rate_spontaneous):
+def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous):
     print("begin experiment 2")
-    agents = createSwissAgents2017(size)
-    G = createNetwork(agents)
     print("starting in 2017 with obesity rate %1.3f" % (obesityRateNetwork(G)))
 
     exportNetwork(G, "predictStart")
-    G_, rates = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=15)
+    G_, rates = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
     exportNetwork(G_, "predictEnd")
     
     print("ended on average in 2042 with obesity rate %1.3f and variance %1.3f" % (obesityRateNetwork(G_), np.var(rates)))
@@ -413,8 +410,8 @@ def experiment_PredictDevelopment_SaveGraphs(size, rate_recovery, rate_spontaneo
 
 def main():
     n = 500
-    rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
-    experiment_PredictDevelopment_SaveGraphs(n, rate_recovery, rate_spontaneous)
+    G, rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
+    experiment_PredictDevelopment_SaveGraphs(G, n, rate_recovery, rate_spontaneous)
 
 
 if __name__== "__main__":
