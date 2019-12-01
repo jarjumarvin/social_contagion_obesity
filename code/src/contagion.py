@@ -411,8 +411,7 @@ def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
 def main():
     n = 500
     G, rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
-    experiment_PredictDevelopment_SaveGraphs(G, n, rate_recovery, rate_spontaneous)
-
+    experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
 
 if __name__== "__main__":
     main()
