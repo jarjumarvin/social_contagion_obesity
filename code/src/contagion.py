@@ -325,21 +325,19 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
     plt.clabel(contour, colors = 'k', fmt = '%1.3f', fontsize=16)
     contour_filled = plt.contourf(rate_recovery_range, rate_spontaneous_range, finalRate, levels)
     plt.colorbar(contour_filled)
-    plt.title('obesity after %d years, initial rate %1.3f' % (timesteps, init), fontsize = 'xx-large')
-    plt.xlabel('recovery', fontsize = 'xx-large')
-    plt.ylabel('spontaneous infection', fontsize = 'xx-large')
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
+    plt.xlabel(r'$\gamma$', fontsize = 'xx-large')
+    plt.ylabel(r'$\alpha$', fontsize = 'xx-large')
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
 
     ## time evolution using least squares
     plt.subplot(1, 2, 2)
-    plt.title('time evolution using least squares solution\nrecovery rate %1.3f and spontaneous rate %1.3f' % (bestFitRecovery, bestFitSpontaneous), fontsize = 'xx-large')
     plt.plot(years, ratesYear, '-o', label='real data')
     plt.plot(yearsFull, ratesByTimeStep[ri][ci], '-^', label='simulation')
     plt.ylabel('rate of obesity', fontsize = 'xx-large')
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
-    plt.legend()
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.legend(fontsize='x-large')
 
     now = datetime.now()
     date_time = now.strftime("%Y%m%d-%H:%M:%S")
@@ -349,13 +347,7 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
 
     return G, bestFitRecovery, bestFitSpontaneous
 
-def predictSwissObesity(n = 500, timesteps=25, recovery=0, spontaneous=0):
-    agents = createSwissAgents2017(n)
-    G = createNetwork(agents)
-
-
-
-def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
+def produceClosestGraph(G, timesteps, transmission, recovery, spontaneous, k = 15):
     """
         saves the given graph G in graph/normedBegin
 
@@ -370,7 +362,7 @@ def produceClosestGraph(G, timesteps, recovery, spontaneous, k = 15):
     avg = 0
     for i in range(k):
         G_copy = deepcopy(G)
-        simulate(G_copy, timesteps, rate_transmission=0.005, rate_recovery=recovery, rate_spontaneous=spontaneous)
+        simulate(G_copy, timesteps, rate_transmission=transmission, rate_recovery=recovery, rate_spontaneous=spontaneous)
         graphs.append(G_copy)
         obesities.append(obesityRateNetwork(G_copy))
         avg += obesityRateNetwork(G_copy)
@@ -392,7 +384,7 @@ def experiment_ParameterDependence_Plot_SaveGraphs(size):
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
 
     exportNetwork(G, "normedBegin")
-    G_, _ = produceClosestGraph(G,timesteps=25, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
+    G_, _ = produceClosestGraph(G,timesteps=25, transmission=0.005, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
     exportNetwork(G_, "normedEnd")
     print("end experiment 1")
     return G_, bestFitRecovery, bestFitSpontaneous
@@ -402,7 +394,7 @@ def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
     print("starting in 2017 with obesity rate %1.3f" % (obesityRateNetwork(G)))
 
     exportNetwork(G, "predictStart")
-    G_, rates = produceClosestGraph(G, timesteps=25, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
+    G_, rates = produceClosestGraph(G, timesteps=25, transmission=0.005, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
     exportNetwork(G_, "predictEnd")
     
     print("ended on average in 2042 with obesity rate %1.3f and variance %1.3f" % (obesityRateNetwork(G_), np.var(rates)))
