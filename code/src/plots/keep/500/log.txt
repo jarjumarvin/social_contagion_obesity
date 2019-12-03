@@ -21,7 +21,7 @@ starting parameter dependence and regression plots
 18
 19
 minimal norm: 0.00016344000000000026
-time elapsed: 2182.523419266 seconds
+time elapsed: 1123.6694210140001 seconds
 starting averaged graph with recovery: 0.023, spontaneous: 0.006
 done producing average graph
 end experiment 1
@@ -29,5 +29,5 @@ begin experiment 2
 starting in 2017 with obesity rate 0.134
 starting averaged graph with recovery: 0.023, spontaneous: 0.006
 done producing average graph
-ended on average in 2042 with obesity rate 0.174 and variance 0.000
+ended on average in 2042 with obesity rate 0.174
 end experiment 2
