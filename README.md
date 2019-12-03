@@ -3,7 +3,7 @@
 
 > * Group Name: hufflepuff
 > * Group participants names: Chio Ge, Marvin Jarju, Giulia Zheng
-> * Project Title: Social contagion of obesity in social networks
+> * Project Title: Spread of Obesity in Social Networks
 
 ## General Introduction
 
@@ -36,7 +36,7 @@
 
 ## Research Methods
 
-(Cellular Automata, Agent-Based Model, Continuous Modeling...) (If you are not sure here: 1. Consult your colleagues, 2. ask the teachers, 3. remember that you can change it afterwards)
+Agent-Based Model
 
 
 ## Other
