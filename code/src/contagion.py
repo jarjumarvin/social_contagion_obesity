@@ -376,7 +376,7 @@ def produceClosestGraph(G, timesteps, transmission, recovery, spontaneous, k = 1
         if (r * r) < (c * c):
             closest = i
     print("done producing average graph")
-    return graphs[closest], obesities
+    return graphs[closest]
 
 def experiment_ParameterDependence_Plot_SaveGraphs(size):
     print("begin experiment 1")
@@ -384,7 +384,7 @@ def experiment_ParameterDependence_Plot_SaveGraphs(size):
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
 
     exportNetwork(G, "normedBegin")
-    G_, _ = produceClosestGraph(G,timesteps=25, transmission=0.005, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
+    G_ = produceClosestGraph(G,timesteps=25, transmission=0.005, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
     exportNetwork(G_, "normedEnd")
     print("end experiment 1")
     return G_, bestFitRecovery, bestFitSpontaneous
@@ -394,10 +394,10 @@ def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
     print("starting in 2017 with obesity rate %1.3f" % (obesityRateNetwork(G)))
 
     exportNetwork(G, "predictStart")
-    G_, rates = produceClosestGraph(G, timesteps=25, transmission=0.005, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
+    G_ = produceClosestGraph(G, timesteps=25, transmission=0.005, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
     exportNetwork(G_, "predictEnd")
     
-    print("ended on average in 2042 with obesity rate %1.3f and variance %1.3f" % (obesityRateNetwork(G_), np.var(rates)))
+    print("ended on average in 2042 with obesity rate %1.3f" % (obesityRateNetwork(G_)))
     print("end experiment 2")
 
 def main():
