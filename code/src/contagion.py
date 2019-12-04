@@ -381,7 +381,7 @@ def produceClosestGraph(G, timesteps, transmission, recovery, spontaneous, k = 1
 def experiment_ParameterDependence_Plot_SaveGraphs(size):
     print("begin experiment 1")
     
-    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
+    G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=2)
 
     exportNetwork(G, "normedBegin")
     G_ = produceClosestGraph(G,timesteps=25, transmission=0.005, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
