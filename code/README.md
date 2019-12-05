@@ -1,3 +1,8 @@
 # Code Folder 
 
-Your code goes here. You could also replace the content of this file with something more meaningful
+## Instructions to Reproduce
+
+- Clone the repository
+- Locate the contagion.py file in code/src
+- Install the required dependencies
+- Run contagion.py (python 3)
