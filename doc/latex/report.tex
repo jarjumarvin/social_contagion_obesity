@@ -8,6 +8,7 @@
 %\usepackage{natbib}
 \usepackage{amssymb, amsmath}
 \usepackage{placeins}
+\usepackage{pdfpages}
 
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
@@ -72,7 +73,7 @@
 
 
 \section{Abstract}
-The prevalence of obesity in our society has experienced a strong increase across the globe. Within the last 25 years, the fraction of obese people in the Swiss population has more than doubled\cite{spreadOfObesityPaper} and studies show that genetic factors have no bearings on whether an individual may contract obesity or not\cite{infectiousDiseaseModeling}. Thus, in our project we would like to explore the possibility that obesity may be viewed as an epidemic that has the ability to spread via social networks whereby "infected" individuals have the capability to pass on the condition to others they come in contact with. Towards this end, we employ the SISa-model as presented in \cite{infectiousDiseaseModeling} which we use to model the spread of obesity in a social network we construct. This model accepts two rates as parameters, the "spontaneous infection" and the "recovery" rate, and fixes a transmission rate of 0.005. Using the known obesity rates in Switzerland for a number of years between 1992 and 2017, we use our model to interpolate between these two years and discover that in order to best reconstruct the development of obesity rates in Switzerland starting at 5\% in 1992 to 10\% in 2017, our model uses an average spontaneous infection rate of 0.006 and a recovery rate of 0.023. In comparison, similar studies pertaining the US arrive at rates that lie in about the same order of magnitude. Using the rates we find in our interpolation, we then predict the development of the obesity epidemic and discover that our model predicts an obesity rate of 17.4\% in 2042 should the hypothesis that obesity spreads like an epidemic be true and considering the simplifications we made to the model. 
+The prevalence of obesity in our society has experienced a strong increase across the globe. Within the last 25 years, the fraction of obese people in the Swiss population has more than doubled\cite{spreadOfObesityPaper} and studies show that genetic factors have no bearings on whether an individual may contract obesity or not\cite{infectiousDiseaseModeling}. Thus, in our project we would like to explore the possibility that obesity may be viewed as an epidemic that has the ability to spread via social networks whereby "infected" individuals have the capability to pass on the condition to others they come in contact with. Towards this end, we employ the SISa-model as presented in \cite{infectiousDiseaseModeling} which we use to model the spread of obesity in a social network we construct. This model accepts two rates as parameters, the "spontaneous infection" and the "recovery" rate, and fixes a transmission rate of 0.005. Using the known obesity rates in Switzerland for a number of years between 1992 and 2017, we use our model to interpolate between these two years. We discover that in order to best reconstruct the development of obesity rates in Switzerland, starting at 5\% in 1992 to 10\% in 2017, our model needs an average spontaneous infection rate of 0.006 and a recovery rate of 0.023. In comparison, similar studies pertaining the US arrive at rates that lie in about the same order of magnitude. Using the rates we find in our interpolation, we then predict the development of the obesity epidemic and discover that our model predicts an obesity rate of 17.4\% in 2042 should the hypothesis that obesity spreads like an epidemic be true and considering the simplifications we made to the model. 
 \section{Introduction and Motivations}
 Human behaviour is chiefly governed by societal and environmental influences. Social interactions, nurture and upbringing account for an individual’s identity, their choices and way of life, which gives rise to the notion that sociological and behavioural phenomena could be transmitted via social networks in a matter comparable to a viral contagion.\\
 
@@ -119,10 +120,10 @@ Due to lack of sufficient data, the ages of agents for both functions are distri
 To model the spread of obesity between agents, we generate a random network whose nodes and edges represent agents in a social network and the social connections between agents respectively.
 We use the popular library \textit{NetworkX} to create and manipulate network structures in Python. \\
 
-Given a population of agents, the \textit{createNetwork} function adds nodes to an empty graph, with each node containing the information pertaining to one agent in the population. Next, the social connections (edges) between agents are generated. As we want our network to resemble a real-world social network, we expect to generate a network with a reasonable average degree \(k\), clustering coefficient (transitivity) \(\Phi\) and average shortest path length \(l\). Additionally, we expect a power law degree distribution. The graph generator we use is the \textit{LFR\_benchmark\_graph} generator of \textit{NetworkX}.
+Given a population of agents, the \textit{createNetwork} function adds nodes to an empty graph, with each node containing the information pertaining to one agent in the population. Next, the social connections (edges) between agents are generated. As we want our network to resemble a real-world social network, we expect to generate a network with a reasonable average degree \(d\), clustering coefficient (transitivity) \(\Phi\) and average shortest path length \(l\). Additionally, we expect a power law degree distribution. The graph generator we use is the \textit{LFR\_benchmark\_graph} generator of \textit{NetworkX}.
 The Lancichinetti–Fortunato–Radicchi benchmark algorithm is designed to generate graphs that resemble real-world social networks\cite{Lancichinetti_2008}. 
 We chose this method of generating a network because it facilitates both the creation of a variety of community sizes and degree distributions, as well as adjusting many of the parameters we are interested in.
-Using the LFR generator, we generate networks with \(500\) nodes that have an average \(\Phi \sim 0.22\), \(k \sim 15\), and \(l \sim 3\). We found these to be sufficiently reasonable parameters for a social network. The edges of the generated network are finally added to the network containing the information of the agents. \\
+Using the LFR generator, we generate networks with \(500\) nodes that have an average \(\Phi \sim 0.22\), \(d \sim 15\), and \(l \sim 3\). We found these to be sufficiently reasonable parameters for a social network. The edges of the generated network are finally added to the network containing the information of the agents. \\
 
 The \textit{exportNetwork} function exports the supplied network along with data describing the obesity of a node to a \textit{.gexf} file.
 This allows us to use the \textit{Gephi} software to visualise and study the networks we work with. The \textit{obesityRateNetwork} function simply determines the current rate of obesity in a supplied network.
@@ -195,11 +196,11 @@ A possible future extension that might be included is allowing a variety of soci
 \end{minipage}%
 \hfill%
 \begin{minipage}[t]{.3\linewidth}
-    \caption{\label{fig:end2017} \textbf{Reconstruction of the Swiss Evolution}. The network from Figure \ref{fig:begin1992} after 25 time-steps, with transmission rate $\beta = 0.005 $ and recovery rate $\gamma_0 = 0.023$ and spontaneous rate $\alpha_0 = 0.006$ obtained from non-linear least squares that best model the Swiss evolution of obesity. The rate of obesity is \(13.4\%\)).}
+    \caption{\label{fig:end2017} \textbf{Reconstruction of the Swiss Evolution}. The network from Figure \ref{fig:begin1992} after 25 time-steps, with transmission rate $\beta = 0.005 $, recovery rate $\gamma_0 = 0.023$ and spontaneous rate $\alpha_0 = 0.006$ obtained from non-linear least squares that best model the Swiss evolution of obesity. The rate of obesity is \(13.4\%\).}
 \end{minipage}%
 \hfill%
 \begin{minipage}[t]{.3\linewidth}
-    \caption{\label{fig:end2042} \textbf{Prediction of the Obesity Rate inn 2042}. The network from Figure \ref{fig:end2017} after another 25 time-steps, with $\beta = 0.005 $, $\gamma_0 = 0.023$ and $\alpha_0 = 0.006$. The rate of obesity is \(17.4\%\)).}
+    \caption{\label{fig:end2042} \textbf{Prediction of the Obesity Rate inn 2042}. The network from Figure \ref{fig:end2017} after another 25 time-steps, with $\beta = 0.005 $, $\gamma_0 = 0.023$ and $\alpha_0 = 0.006$. The rate of obesity is \(17.4\%\).}
 \end{minipage}%
 \end{figure}
 
@@ -231,7 +232,7 @@ Using this approach, we obtain the values \((\gamma_0 = 0.023, \alpha_0 = 0.006)
 
 The final network obtained by simulations using $\gamma_0$ and $\alpha_0$ is shown in Figure \ref{fig:end2017}, with an average obesity rate of 13.4\%. Here, one can observe the formation of clusters with prevalence of either obese or non-obese agents as described in \cite{spreadOfObesityPaper}.
 
-\subsection{Predicting the Future Rates of Obesity in Switzerland}
+\subsection{Prediction of the Future Rates of Obesity in Switzerland}
 
 Supposing that recovery and spontaneous rates remain constant over the next 25 years, we use our model to make predictions about the future evolution of obesity in Switzerland. Figure \ref{fig:end2042} shows the final network obtained in section 5.1 after another 25 time steps using the network from Figure \ref{fig:end2017}. The final obesity rate our model produces on average is 17.4\%.
 
@@ -239,11 +240,11 @@ Supposing that recovery and spontaneous rates remain constant over the next 25 y
 
 \section{Conclusion and Outlook}
 
-Despite the simplifications our model was subjected to, and the limited set of parameters we utilised, we find that we extract spontaneous and recovery rates that in terms of order of magnitude, are highly in line with those found in research papers pertaining population studies in the US \cite{infectiousDiseaseModeling}. While in our simulations we arrive at a spontaneous rate of 0.006 and a recovery rate of 0.023 (with fixed transmission rate of 0.005), the research conducted in \cite{infectiousDiseaseModeling} result in a spontaneous rate of 0.02 and a recovery rate of 0.04. For what it's worth, our lower rates seem logical considering the general obesity prevalence in Switzerland is lower than that of the USA. The  fact that our rates seem appropriate and reasonably in line with those of other independent research results, hints at the possibility that the theory of a social contagion holds water, indeed. \\
+Despite the simplifications our model was subjected to, and the limited set of parameters we utilised, we find that we extract spontaneous and recovery rates that in terms of order of magnitude, are highly in line with those found in research papers pertaining population studies in the US \cite{infectiousDiseaseModeling}. While in our simulations we arrive at a spontaneous rate \(\alpha\) of 0.006 and a recovery rate of \(\gamma\) 0.023 (with fixed transmission rate \(\beta\) of 0.005), the research conducted in \cite{infectiousDiseaseModeling} result in a spontaneous rate of 0.02 and a recovery rate of 0.04. For what it's worth, our lower rates seem logical considering the general obesity prevalence in Switzerland is lower than that of the USA. The  fact that our rates seem appropriate and reasonably in line with those of other independent research results, hints at the possibility that the theory of a social contagion might be accurate, indeed. \\
 
 Furthermore, bearing in mind the number of simplifications we made, we find there are numerous ways our model can be expanded upon: one may begin to differentiate between different kinds of relationship (friendship, family, etc.)\cite{spreadOfObesityPaper} or utilise the fact that transmission rates can vary with the sex of a social contagion. Another caveat we had to work under was that our initial distribution of obese agents was completely at random: realistically, clusters should already have formed from the get-go in our baseline network. If we were to include all those considerations and worked these features into our simulations, we may inch even closer to the real rates and achieve an accurate prediction for 25 years down the line, provided this hypothesis of the existence of a social contagion is in fact proven true.\\
 
-Should this indeed be the case, this would have wide-ranging consequences for society as we know it. We would find ourselves in a downward spiral of infections whereby more and more of the population will become obese and infect the social circles surrounding them which only exacerbates the issue even further. In our simplified model, we already predict obesity to rise as high as 17\% in 2042 with no break in this upward trend in sight. The conclusions needed to be drawn from this are that what we call an person's spontaneous/recovery rate must be lowered/increased, respectively, if we ever hope to curb this epidemic. Thus, the implications for society are that obese people must receive increased support in order to facilitate recovery and healthy individuals need to be more discouraged from contracting obesity "spontaneously", i.e. via improved education on the subject and promotion of more healthy lifestyles. 
+Should this indeed be the case, this would have wide-ranging consequences for society as we know it. We would find ourselves in a downward spiral of infections whereby more and more of the population will become obese and infect the social circles surrounding them which only exacerbates the issue even further. In our simplified model, we already predict obesity to rise as high as 17\% in 2042 with no break in this upward trend in sight. The conclusions needed to be drawn from this are that what we call an person's spontaneous(recovery) rate must be lowered(increased), respectively, if we ever hope to curb this epidemic. Thus, the implications for society are that obese people must receive increased support in order to facilitate recovery and healthy individuals need to be more discouraged from contracting obesity "spontaneously", i.e. via improved education on the subject and promotion of more healthy lifestyles. 
 
 \newpage
 
@@ -252,4 +253,8 @@ Should this indeed be the case, this would have wide-ranging consequences for so
 \bibliographystyle{plain}
 \bibliography{refs}
 
+
+\includepdf[]{originality}
+
 \end{document}
+
