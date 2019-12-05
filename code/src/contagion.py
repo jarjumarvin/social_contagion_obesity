@@ -73,7 +73,6 @@ class Agent:
 def ageFromGroup(group):
     """
         Returns a uniformly distributed age within a given age group.
-
         Age groups:
         0: 15-24
         1: 25-54
@@ -383,9 +382,9 @@ def experiment_ParameterDependence_Plot_SaveGraphs(size):
     
     G, bestFitRecovery, bestFitSpontaneous = plotParameterDependenceAndDoRegression(n=size, size=20)
 
-    exportNetwork(G, "normedBegin")
+    exportNetwork(G, "1992begin-%1.3f" % (obesityRateNetwork(G)))
     G_ = produceClosestGraph(G,timesteps=25, transmission=0.005, recovery=bestFitRecovery, spontaneous=bestFitSpontaneous, k=30)
-    exportNetwork(G_, "normedEnd")
+    exportNetwork(G, "2017reconstructed-%1.3f" % (obesityRateNetwork(G_)))
     print("end experiment 1")
     return G_, bestFitRecovery, bestFitSpontaneous
 
@@ -393,9 +392,8 @@ def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
     print("begin experiment 2")
     print("starting in 2017 with obesity rate %1.3f" % (obesityRateNetwork(G)))
 
-    exportNetwork(G, "predictStart")
     G_ = produceClosestGraph(G, timesteps=25, transmission=0.005, recovery=rate_recovery, spontaneous=rate_spontaneous, k=30)
-    exportNetwork(G_, "predictEnd")
+    exportNetwork(G_, "2042end-%1.3f" % (obesityRateNetwork(G_)))
     
     print("ended on average in 2042 with obesity rate %1.3f" % (obesityRateNetwork(G_)))
     print("end experiment 2")
