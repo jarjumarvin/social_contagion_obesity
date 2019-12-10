@@ -25,6 +25,9 @@ How can our simple model be expanded upon further in order to obtain an even mor
 
 We expect that after runnning our simulations, we will find a formation of clusters in our social network, i.e. that obese agents are concentrated within social groups. We also expect to obtain recovery and spontaneous infection rates that are in the same order of magnitude as those found in similiar studies pertaining the US. Since the US has a larger obesity rate in general, we expect our rates to be slightly lower, though. Further, using the rates we find in our populations, we expect that if we run the simulation for another 25 years, our obesity rate should double again in 2042, i.e. we would obtain a rate of around 20%.
 
+## Reproducibility
+
+See /code
 
 ## References 
 
