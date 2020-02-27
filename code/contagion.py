@@ -11,7 +11,7 @@ from networkx.algorithms.community import LFR_benchmark_graph
 
 dirname = os.path.dirname(__file__)
 
-np.random.seed(7) # 7 - 0.052, 12 - 0.056
+np.random.seed(7) # 7 - 0.052
 
 class Agent:
     """
@@ -230,7 +230,7 @@ def simulate(G, num_timesteps = 25, rate_transmission=0.005, rate_recovery=0.04,
     for i in range(num_timesteps):
         step(G, rate_transmission, rate_recovery, rate_spontaneous)
         rates.append(obesityRateNetwork(G))
-    
+
     return rates
 
 def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06), spontaneous=(0.001, 0.03), timesteps=25, iterations=5):
@@ -338,6 +338,8 @@ def plotParameterDependenceAndDoRegression(size=12, n=500, recovery=(0.01, 0.06)
     plt.yticks(fontsize=14)
     plt.legend(fontsize='x-large')
 
+    print(yearsFull)
+    print(ratesByTimeStep[ri][ci])
     now = datetime.now()
     date_time = now.strftime("%Y%m%d-%H:%M:%S")
     plt.savefig(os.path.join(dirname, 'plots/','%s-n-%d-size-%d-init-%1.3f-steps-%d-iter-%d.png' % (date_time, n, size, init, timesteps, iterations)))
@@ -400,8 +402,11 @@ def experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
 
 def main():
     n = 500
-    G, rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
-    experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
+    # G, rate_recovery, rate_spontaneous = experiment_ParameterDependence_Plot_SaveGraphs(n)
+    # experiment_PredictDevelopment_SaveGraphs(G, rate_recovery, rate_spontaneous)
+    agents = createSwissAgents1992(n)
+    G = createNetwork(agents)
+    print(obesityRateNetwork(G))
 
 if __name__== "__main__":
     main()

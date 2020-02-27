@@ -1,0 +1,32 @@
+\begin{thebibliography}{1}
+
+\bibitem{spreadOfObesityPaper}
+Nicholas~A. Christakis and James~H. Fowler.
+\newblock The spread of obesity in a large social network over 32 years.
+\newblock {\em New England Journal of Medicine}, 357(4), 2007.
+\newblock PMID: 17652652.
+
+\bibitem{agestructure}
+CIA.
+\newblock Age structure of switzerland 2018.
+\newblock
+  \url{https://www.cia.gov/library/publications/the-world-factbook/geos/sz.html}.
+
+\bibitem{bmistatistics}
+Bundesamt für Statistik.
+\newblock Body mass index (bmi) nach geschlecht, alter, bildungsniveau,
+  sprachgebiet - 1992, 1997, 2002, 2007, 2012, 2017: Tabelle.
+\newblock
+  \url{https://www.bfs.admin.ch/bfs/de/home/statistiken/gesundheit/determinanten/uebergewicht.assetdetail.6466017.html}.
+
+\bibitem{infectiousDiseaseModeling}
+Alison~L. Hill, David~G. Rand, Martin~A. Nowak, and Nicholas~A. Christakis.
+\newblock Infectious disease modeling of social contagion in networks.
+\newblock {\em PLOS Computational Biology}, 6(11), 11 2010.
+
+\bibitem{Lancichinetti_2008}
+Andrea Lancichinetti, Santo Fortunato, and Filippo Radicchi.
+\newblock Benchmark graphs for testing community detection algorithms.
+\newblock {\em Physical Review E}, 78(4), Oct 2008.
+
+\end{thebibliography}
